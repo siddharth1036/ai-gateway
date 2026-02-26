@@ -41,7 +41,7 @@ spec:
           # Clear the default memory/cpu requirements for local tests.
           resources: {}
 ---
-apiVersion: aigateway.envoyproxy.io/v1alpha1
+apiVersion: aigateway.envoyproxy.io/v1beta1
 kind: AIGatewayRoute
 metadata:
   name: upgrade-test
@@ -62,7 +62,7 @@ spec:
       timeouts:
         request: 120s
 ---
-apiVersion: aigateway.envoyproxy.io/v1alpha1
+apiVersion: aigateway.envoyproxy.io/v1beta1
 kind: AIServiceBackend
 metadata:
   name: upgrade-test-cool-model-backend
