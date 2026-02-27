@@ -109,23 +109,18 @@ apigen: ## Generate CRDs for the API defined in the api directory.
 	@$(GO_TOOL) controller-gen crd paths="./api/v1alpha1/..." paths="./api/v1beta1/..." output:crd:dir=./manifests/charts/ai-gateway-crds-helm/templates
 
 # This generates the API documentation for the API defined in the api directory.
-# Generates docs for both v1alpha1 (legacy) and v1beta1 (preferred for new resources).
+# Generates merged docs for all API versions (v1beta1 and v1alpha1).
 .PHONY: apidoc
 apidoc: ## Generate API documentation for the API defined in the api directory.
+	@echo "apidoc => generating API reference for all versions..."
 	@$(GO_TOOL) crd-ref-docs \
-		--source-path=api/v1alpha1 \
+		--source-path=api \
 		--config=site/crd-ref-docs/config-core.yaml \
 		--templates-dir=site/crd-ref-docs/templates \
 		--max-depth 20 \
 		--output-path site/docs/api/api.mdx \
 		--renderer=markdown
-	@$(GO_TOOL) crd-ref-docs \
-		--source-path=api/v1beta1 \
-		--config=site/crd-ref-docs/config-core.yaml \
-		--templates-dir=site/crd-ref-docs/templates \
-		--max-depth 20 \
-		--output-path site/docs/api/api-v1beta1.mdx \
-		--renderer=markdown
+	@echo "apidoc => API documentation generated at site/docs/api/api.mdx"
 
 # This generates typed client, listers, and informers for the API.
 .PHONY: codegen

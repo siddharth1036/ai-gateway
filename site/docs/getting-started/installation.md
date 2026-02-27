@@ -70,22 +70,6 @@ helm upgrade -i aieg oci://docker.io/envoyproxy/ai-gateway-helm --version v${var
 
 :::
 
-## API Version (v1beta1)
-
-AIGatewayRoute, AIServiceBackend, BackendSecurityPolicy, and GatewayConfig support the v1beta1 API. For new resources, use `apiVersion: aigateway.envoyproxy.io/v1beta1`:
-
-```yaml
-apiVersion: aigateway.envoyproxy.io/v1beta1
-kind: AIGatewayRoute
-metadata:
-  name: my-route
-  namespace: default
-spec:
-  # ...
-```
-
-MCPRoute and QuotaPolicy remain v1alpha1-only. Existing v1alpha1 resources continue to work; upgrading from alpha to beta is automatic during Helm upgrades. See [API Reference (v1beta1)](../api/api-v1beta1) and [Compatibility](../compatibility#upgrading-and-migration) for details.
-
 ## Next Steps
 
 After completing the installation:
