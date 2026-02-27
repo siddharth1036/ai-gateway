@@ -108,7 +108,8 @@ apigen: ## Generate CRDs for the API defined in the api directory.
 	@echo "apigen => ./api/... (crd)"
 	@$(GO_TOOL) controller-gen crd paths="./api/v1alpha1/..." paths="./api/v1beta1/..." output:crd:dir=./manifests/charts/ai-gateway-crds-helm/templates
 
-# This generates the API documentation for the API defined in the api/v1alpha1 directory.
+# This generates the API documentation for the API defined in the api directory.
+# Generates docs for both v1alpha1 (legacy) and v1beta1 (preferred for new resources).
 .PHONY: apidoc
 apidoc: ## Generate API documentation for the API defined in the api directory.
 	@$(GO_TOOL) crd-ref-docs \
@@ -118,12 +119,19 @@ apidoc: ## Generate API documentation for the API defined in the api directory.
 		--max-depth 20 \
 		--output-path site/docs/api/api.mdx \
 		--renderer=markdown
+	@$(GO_TOOL) crd-ref-docs \
+		--source-path=api/v1beta1 \
+		--config=site/crd-ref-docs/config-core.yaml \
+		--templates-dir=site/crd-ref-docs/templates \
+		--max-depth 20 \
+		--output-path site/docs/api/api-v1beta1.mdx \
+		--renderer=markdown
 
 # This generates typed client, listers, and informers for the API.
 .PHONY: codegen
 codegen: ## Generate typed client, listers, and informers for the API.
 	@echo "codegen => generating kubernetes clients..."
-	@echo "codegen => generating clientset..."
+	@echo "codegen => generating clientset for v1alpha1..."
 	@$(GO_TOOL) client-gen \
 		--clientset-name="versioned" \
 		--input-base="" \
@@ -132,14 +140,14 @@ codegen: ## Generate typed client, listers, and informers for the API.
 		--output-dir="./api/v1alpha1/client/clientset" \
 		--output-pkg="github.com/envoyproxy/ai-gateway/api/v1alpha1/client/clientset" \
 		--plural-exceptions="BackendSecurityPolicy:BackendSecurityPolicies"
-	@echo "codegen => generating listers..."
+	@echo "codegen => generating listers for v1alpha1..."
 	@$(GO_TOOL) lister-gen \
 		--go-header-file=/dev/null \
 		--output-dir="./api/v1alpha1/client/listers" \
 		--output-pkg="github.com/envoyproxy/ai-gateway/api/v1alpha1/client/listers" \
 		--plural-exceptions="BackendSecurityPolicy:BackendSecurityPolicies" \
 		"github.com/envoyproxy/ai-gateway/api/v1alpha1"
-	@echo "codegen => generating informers..."
+	@echo "codegen => generating informers for v1alpha1..."
 	@$(GO_TOOL) informer-gen \
 		--go-header-file=/dev/null \
 		--versioned-clientset-package="github.com/envoyproxy/ai-gateway/api/v1alpha1/client/clientset/versioned" \
@@ -148,6 +156,31 @@ codegen: ## Generate typed client, listers, and informers for the API.
 		--output-pkg="github.com/envoyproxy/ai-gateway/api/v1alpha1/client/informers" \
 		--plural-exceptions="BackendSecurityPolicy:BackendSecurityPolicies" \
 		"github.com/envoyproxy/ai-gateway/api/v1alpha1"
+	@echo "codegen => generating clientset for v1beta1..."
+	@$(GO_TOOL) client-gen \
+		--clientset-name="versioned" \
+		--input-base="" \
+		--input="github.com/envoyproxy/ai-gateway/api/v1beta1" \
+		--go-header-file=/dev/null \
+		--output-dir="./api/v1beta1/client/clientset" \
+		--output-pkg="github.com/envoyproxy/ai-gateway/api/v1beta1/client/clientset" \
+		--plural-exceptions="BackendSecurityPolicy:BackendSecurityPolicies"
+	@echo "codegen => generating listers for v1beta1..."
+	@$(GO_TOOL) lister-gen \
+		--go-header-file=/dev/null \
+		--output-dir="./api/v1beta1/client/listers" \
+		--output-pkg="github.com/envoyproxy/ai-gateway/api/v1beta1/client/listers" \
+		--plural-exceptions="BackendSecurityPolicy:BackendSecurityPolicies" \
+		"github.com/envoyproxy/ai-gateway/api/v1beta1"
+	@echo "codegen => generating informers for v1beta1..."
+	@$(GO_TOOL) informer-gen \
+		--go-header-file=/dev/null \
+		--versioned-clientset-package="github.com/envoyproxy/ai-gateway/api/v1beta1/client/clientset/versioned" \
+		--listers-package="github.com/envoyproxy/ai-gateway/api/v1beta1/client/listers" \
+		--output-dir="./api/v1beta1/client/informers" \
+		--output-pkg="github.com/envoyproxy/ai-gateway/api/v1beta1/client/informers" \
+		--plural-exceptions="BackendSecurityPolicy:BackendSecurityPolicies" \
+		"github.com/envoyproxy/ai-gateway/api/v1beta1"
 	@echo "codegen => complete"
 
 ##@ Testing
